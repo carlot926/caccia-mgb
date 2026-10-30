@@ -372,6 +372,25 @@
   .gbtn { display: inline-flex; align-items: center; gap: 10px; }
   .gbtn svg { width: 18px; height: 18px; background: #fff; border-radius: 50%; padding: 2px; }
   .podium > .empty { grid-column: 1 / -1; }
+  .gal { position: relative; width: 100%; border-radius: 8px; }
+  .gal-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 8px; overscroll-behavior-x: contain; }
+  .gal-track::-webkit-scrollbar { display: none; }
+  .gal-slide { flex: 0 0 100%; scroll-snap-align: center; aspect-ratio: 4 / 3; display: grid; place-items: center; background: var(--accent-soft); overflow: hidden; }
+  .gal-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gal-slide.cut { background: none; }
+  .gal-slide.cut img { object-fit: contain; width: 92%; height: 92%; filter: drop-shadow(0 14px 10px rgb(0 0 0 / .28)); }
+  .gal.in-deck .gal-slide { aspect-ratio: 16 / 10; }
+  .gal .nophoto { aspect-ratio: 16 / 10; display: grid; place-items: center; color: var(--muted); font-family: var(--font-display); font-size: 1.6rem; }
+  .gal-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgb(255 255 255 / .85); color: #1c211d; font-size: 1.5rem; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .2); transition: opacity .2s, transform .2s; }
+  .gal-btn:hover { transform: translateY(-50%) scale(1.06); }
+  .gal-btn[disabled] { opacity: 0; pointer-events: none; }
+  .gal-btn.prev { left: 10px; } .gal-btn.next { right: 10px; }
+  .gal-count { position: absolute; right: 10px; bottom: 10px; background: rgb(16 21 18 / .7); color: #fff; font-size: .72rem; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  @media (hover: none) { .gal-btn { width: 32px; height: 32px; font-size: 1.2rem; } }
+  .rate-look { font: inherit; font-size: .76rem; color: var(--link); background: none; border: 0; padding: 2px 0 0; cursor: pointer; text-align: left; justify-self: start; }
+  .rate-look:hover { text-decoration: underline; }
+  .rate-look.none { color: var(--muted); cursor: default; }
+  .rate-look.none:hover { text-decoration: none; }
   /* toast */
   .toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--fg); color: var(--bg); font-size: .82rem; letter-spacing: .04em; padding: 10px 18px; border-radius: 999px; box-shadow: 0 12px 30px -10px rgb(0 0 0 / .5); z-index: 100; transition: opacity .25s, transform .35s cubic-bezier(.2,.8,.2,1); white-space: nowrap; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -691,7 +710,8 @@
   // ---------- annunci del giorno (file del sito)
   async function loadFeed() {
     try {
-      const [l, f, m] = await Promise.all(['data/listings.json', 'data/fonti.json', 'data/meta.json'].map((u) => fetch(u, {cache: 'no-cache'}).then((r) => r.ok ? r.json() : {})));
+      const [l, f, m, g, t] = await Promise.all(['data/listings.json', 'data/fonti.json', 'data/meta.json', 'data/gallerie.json', 'data/gallerie-tag.json'].map((u) => fetch(u, {cache: 'no-cache'}).then((r) => r.ok ? r.json() : {}).catch(() => ({}))));
+      S.gal = g || {}; S.tags = t || {};
       S.rows = Array.isArray(l.rows) ? l.rows : [];
       S.fonti = Array.isArray(f.rows) ? f.rows : [];
       S.byId = new Map(S.rows.map((r) => [r.id, r]));
@@ -934,7 +954,8 @@
   function voterName(u) { return (S.voterNames && S.voterNames.get(u)) || S.names[u] || (u === S.uid ? 'Tu' : 'Senza nome'); }
   const myName = () => String((S.voterNames && S.voterNames.get(S.uid)) || '').trim();
   const myVotes = () => S.votes.get(S.uid) || {};
-  const isDone = (id) => { const v = myVotes()[id]; return !!v && CRIT.every(([k]) => v[k] >= 1); };
+  const noInterni = (id) => !((S.gal || {})[id] || []).length && !(((S.tags || {})[id] || {}).interni || []).length;
+  const isDone = (id) => { const v = myVotes()[id]; return !!v && CRIT.every(([k]) => v[k] >= 1 || (k === 'interni' && noInterni(id))); };
   const votedCount = () => [...S.favs.keys()].filter(isDone).length;
 
   function favImg(id, f) {
@@ -1003,11 +1024,62 @@
   }
 
   // ---------- componente stelle
-  function ratingRows(id, big) {
+  // ---------- galleria foto
+  function galleryEl(id, f, withCut) {
+    const urls = ((S.gal || {})[id] || []).filter(okImg);
+    const slides = [];
+    if (withCut) { const ci = carImg(id, f, 'Foto scontornata: ' + (f.titolo || '')); if (ci && ci.classList.contains('cut')) slides.push({node: ci, cut: true}); }
+    if (urls.length) urls.forEach((u) => slides.push({url: u}));
+    else { const m = favImg(id, f); if (m) slides.push({url: m}); }
+    const wrap = el('div', 'gal' + (withCut ? ' in-deck' : ''));
+    if (!slides.length) { wrap.append(el('div', 'nophoto', 'MG')); wrap.goTo = () => {}; return wrap; }
+    const track = el('div', 'gal-track'); track.tabIndex = 0; track.setAttribute('aria-label', 'Foto dell’auto, ' + slides.length);
+    slides.forEach((s, i) => {
+      const sl = el('div', 'gal-slide' + (s.cut ? ' cut' : ''));
+      if (s.node) sl.append(s.node);
+      else { const im = el('img'); im.src = s.url; im.alt = 'Foto ' + (i + 1) + ' di ' + slides.length; im.loading = i < 2 ? 'eager' : 'lazy'; im.decoding = 'async'; im.referrerPolicy = 'no-referrer'; sl.append(im); }
+      track.append(sl);
+    });
+    wrap.append(track);
+    const idx = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+    const go = (i, smooth) => track.scrollTo({left: Math.max(0, Math.min(slides.length - 1, i)) * track.clientWidth, behavior: smooth === false || REDUCED ? 'auto' : 'smooth'});
+    if (slides.length > 1) {
+      const prev = el('button', 'gal-btn prev', '‹'); prev.type = 'button'; prev.setAttribute('aria-label', 'Foto precedente');
+      const nx = el('button', 'gal-btn next', '›'); nx.type = 'button'; nx.setAttribute('aria-label', 'Foto successiva');
+      const cnt = el('span', 'gal-count', '1 / ' + slides.length);
+      prev.addEventListener('click', (e) => { e.stopPropagation(); go(idx() - 1); });
+      nx.addEventListener('click', (e) => { e.stopPropagation(); go(idx() + 1); });
+      const upd = () => { const i = idx(); cnt.textContent = (i + 1) + ' / ' + slides.length; prev.disabled = i === 0; nx.disabled = i === slides.length - 1; };
+      track.addEventListener('scroll', () => requestAnimationFrame(upd), {passive: true});
+      track.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); go(idx() + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(idx() - 1); } });
+      wrap.append(prev, nx, cnt); upd();
+    }
+    wrap.goTo = (url) => {
+      const i = url === 'first-photo' ? slides.findIndex((s) => s.url) : slides.findIndex((s) => s.url === url);
+      if (i < 0) return;
+      go(i);
+      if (!REDUCED) wrap.animate([{boxShadow: '0 0 0 0 var(--brass)'}, {boxShadow: '0 0 0 3px var(--brass)'}, {boxShadow: '0 0 0 0 var(--brass)'}], {duration: 900, delay: 250});
+      wrap.scrollIntoView({block: 'nearest', behavior: REDUCED ? 'auto' : 'smooth'});
+    };
+    return wrap;
+  }
+
+  function ratingRows(id, big, gal) {
     const wrap = el('div', 'rating' + (big ? ' big' : ''));
     for (const [k, label, hint] of CRIT) {
       const row = el('div', 'rate-row');
       const txt = el('div', 'rate-txt'); txt.append(el('span', 'rate-lab', label)); if (big) txt.append(el('span', 'rate-hint', hint));
+      if (gal) {
+        const tag = (((S.tags || {})[id] || {})[k] || [])[0];
+        const f0 = S.favs.get(id) || {};
+        if (k === 'interni' && noInterni(id)) {
+          const note = el('span', 'rate-look none'); note.append(document.createTextNode('Non ci sono foto degli interni: ')); const a = link(f0.url, 'guardali nell’annuncio ↗'); note.append(a, document.createTextNode(' oppure salta.')); txt.append(note);
+        } else if (tag || k === 'colore') {
+          const lb = el('button', 'rate-look', k === 'interni' ? 'Mostra gli interni ›' : k === 'cerchi' ? 'Mostra i cerchi ›' : 'Mostra gli esterni ›'); lb.type = 'button';
+          lb.addEventListener('click', () => gal.goTo(tag || 'first-photo'));
+          txt.append(lb);
+        }
+      }
       const st = el('div', 'rate-stars'); st.setAttribute('role', 'radiogroup'); st.setAttribute('aria-label', label);
       const paint = () => {
         const cur = (myVotes()[id] || {})[k] || 0;
@@ -1114,9 +1186,9 @@
       if (!f) { D.list.splice(D.i, 1); if (D.i >= D.list.length) D.step = 'done'; renderDeck(dir); return; }
       $('deck-step').textContent = 'Auto ' + (D.i + 1) + ' di ' + n;
       node = el('div', 'deck-card');
-      const pic = el('div', 'deck-pic'); pic.append(carImg(id, f, 'Foto: ' + (f.titolo || '')) || el('div', 'nophoto', 'MG'));
+      const pic = galleryEl(id, f, true);
       node.append(pic, el('h2', 'sheet-title', f.titolo || 'Annuncio salvato'), el('p', 'deck-meta', metaLine(f)));
-      const rr = ratingRows(id, true);
+      const rr = ratingRows(id, true, pic);
       rr.addEventListener('rated', (e) => {
         $('deck-dots').children[D.i] && $('deck-dots').children[D.i].classList.toggle('done', isDone(id));
         next.textContent = D.i === n - 1 ? 'Fine →' : 'Avanti →';
@@ -1144,7 +1216,7 @@
   (() => {
     let x0 = null, y0 = null;
     const st = $('deck-stage');
-    st.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
+    st.addEventListener('touchstart', (e) => { if (e.target.closest('.gal')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
     st.addEventListener('touchend', (e) => {
       if (x0 == null) return;
       const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
@@ -1168,7 +1240,7 @@
     const body = $('det-body');
     const kids = [];
     const img = favImg(id, f);
-    if (img) { const i = el('img', 'det-photo'); i.src = img; i.alt = 'Foto: ' + (f.titolo || ''); kids.push(i); }
+    const dgal = galleryEl(id, f, false); kids.push(dgal);
     kids.push(el('h2', 'sheet-title', f.titolo || 'Annuncio salvato'));
     const facts = el('div', 'row'); facts.append(el('span', 'price', eur(priceOf(f))));
     [f.anno, (f.km || (live && live.km)) ? num(f.km || live.km) + ' km' : null, [f.citta, f.paese].filter(Boolean).join(', '), f.fonte].filter(Boolean).forEach((v) => facts.append(el('span', null, String(v))));
@@ -1195,7 +1267,7 @@
 
     if (S.canVote) {
       const yv = el('section', 'det-sec'); yv.append(el('h3', null, 'Il tuo voto' + (myName() ? ', ' + myName() : '')));
-      if (myName()) yv.append(ratingRows(id, false));
+      if (myName()) yv.append(ratingRows(id, false, dgal));
       else { const go = el('button', 'btn', 'Scrivi il tuo nome e vota'); go.type = 'button'; go.addEventListener('click', () => { closeSheet($('detail')); setTimeout(() => openDeck(id), 230); }); yv.append(go); }
       kids.push(yv);
     }

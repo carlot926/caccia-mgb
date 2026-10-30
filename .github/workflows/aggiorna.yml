@@ -30,6 +30,9 @@ jobs:
         run: python3 -I scraper/scraper.py --out /tmp/out --previous data/listings.json
       - name: Prepara i dati del sito
         run: python3 -I scraper/slim.py /tmp/out data
+      - name: Raccogli le gallerie foto delle preferite
+        run: python3 -I scraper/gallerie.py data/gallerie.json
+        continue-on-error: true
       - name: Salva nel repository
         run: |
           git config user.name "caccia-mgb bot"

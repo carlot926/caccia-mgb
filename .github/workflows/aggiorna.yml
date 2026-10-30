@@ -1,0 +1,57 @@
+name: Aggiorna e pubblica
+
+on:
+  schedule:
+    - cron: "40 5 * * *"   # ogni mattina alle 6:40 UTC (7:40 in Italia d'inverno)
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: aggiorna
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Raccogli gli annunci
+        run: python3 -I scraper/scraper.py --out /tmp/out --previous data/listings.json
+      - name: Prepara i dati del sito
+        run: python3 -I scraper/slim.py /tmp/out data
+      - name: Salva nel repository
+        run: |
+          git config user.name "caccia-mgb bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Annunci del $(date -u +%Y-%m-%d)"
+          git push
+
+  pubblica:
+    needs: aggiorna
+    if: always() && (needs.aggiorna.result == 'success' || needs.aggiorna.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deploy
+        uses: actions/deploy-pages@v4

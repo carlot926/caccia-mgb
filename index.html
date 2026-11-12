@@ -7,10 +7,10 @@
 <meta name="description" content="Il concorso d'eleganza tra amici per scegliere la MGB chrome bumper da comprare: annunci europei aggiornati ogni giorno, voti e podio.">
 <meta property="og:title" content="Caccia alla MGB">
 <meta property="og:description" content="Vota la tua MGB preferita tra quelle selezionate da Carlo.">
-<meta name="theme-color" content="#f2eee6">
+<meta name="theme-color" content="#1f2124">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23173d2d'/%3E%3Ctext x='32' y='41' font-family='Georgia' font-size='26' text-anchor='middle' fill='%23e8d9b0'%3EMG%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;1,6..96,400&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap">
 <style>
   html { -webkit-text-size-adjust: 100%; } :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); } body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }
   /* Layout: una colonna come un catalogo d'asta inglese. Niente riquadri: sezioni separate da doppi filetti, carta e inchiostro, verde British Racing e ottone. */
@@ -399,23 +399,170 @@
   /* toast */
   .toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--fg); color: var(--bg); font-size: .82rem; letter-spacing: .04em; padding: 10px 18px; border-radius: 999px; box-shadow: 0 12px 30px -10px rgb(0 0 0 / .5); z-index: 100; transition: opacity .25s, transform .35s cubic-bezier(.2,.8,.2,1); white-space: nowrap; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  /* ===== Tema "galleria": bianco, inchiostro, antracite, accento bordeaux =====
+     Layout: barra antracite in alto, foto a tutta larghezza con velo scuro, sezioni bianche numerate con filetti sottili. */
+  :root {
+    --bg: #ffffff; --panel: #f7f7f7; --fg: #111111; --muted: #5e5e5e; --line: #dcdcdc;
+    --accent: #111111; --brass: #752539; --accent-soft: #f2f2f2;
+    --link: #2b72b8; --link-hover: #1d5a94; --ok: #2c6e49; --warn: #9a5b13; --bad: #9b2335; --star: #752539; --dot-muted: #c9c9c9;
+    --charcoal: #1f2124; --on-dark: #f4f4f4;
+    --font-display: "Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-body: "Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --r: 12px;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #141517; --panel: #1d1f22; --fg: #f1f1f1; --muted: #a3a3a3; --line: #2f3236; --accent: #f1f1f1; --brass: #d0838f; --accent-soft: #212327;
+    --link: #8cc4f2; --link-hover: #b3d8f7; --ok: #7fcf9e; --warn: #e3a64a; --bad: #ef8a97; --star: #d98f9b; --dot-muted: #4a4d52; --charcoal: #0e0f10; color-scheme: dark } }
+  :root[data-theme="dark"] {
+    --bg: #141517; --panel: #1d1f22; --fg: #f1f1f1; --muted: #a3a3a3; --line: #2f3236; --accent: #f1f1f1; --brass: #d0838f; --accent-soft: #212327;
+    --link: #8cc4f2; --link-hover: #b3d8f7; --ok: #7fcf9e; --warn: #e3a64a; --bad: #ef8a97; --star: #d98f9b; --dot-muted: #4a4d52; --charcoal: #0e0f10; color-scheme: dark }
+  body { font-weight: 400; font-size: 16px; letter-spacing: -.003em; overflow-x: clip; }
+  .wrap { gap: 0; padding-block: 0 0; max-width: 1280px; }
+  .view { padding-top: 0; }
+
+  /* barra in alto */
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--charcoal); color: var(--on-dark); border-bottom: 1px solid rgb(255 255 255 / .12); }
+  body::before { background: var(--charcoal); }
+  .topbar-in { max-width: 1280px; margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-block: 14px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  .brand { font-family: var(--font-display); font-weight: 300; font-size: 1.45rem; letter-spacing: -.01em; color: inherit; text-decoration: none; white-space: nowrap; }
+  .brand b { font-weight: 600; }
+  .topbar .tabs { position: static; background: none; border: 0; margin: 0; padding: 0; display: flex; gap: 4px 26px; flex-wrap: nowrap; }
+  .topbar .tab { display: inline-flex; max-width: none; padding: 6px 0; color: rgb(244 244 244 / .78); font-size: .92rem; font-weight: 400; letter-spacing: 0; text-transform: none; border-bottom: 1px solid transparent; }
+  .topbar .tab:hover { color: #fff; }
+  .topbar .tab[aria-selected="true"] { color: #fff; border-bottom-color: #fff; }
+  .topbar .tab small { display: none; }
+  .topbar .count { color: #fff; font-family: var(--font-body); font-size: .74rem; border: 1px solid rgb(255 255 255 / .45); border-radius: 999px; padding: 0 7px; margin-left: 8px; min-width: 0; }
+  @media (max-width: 640px) {
+    .topbar-in { flex-direction: column; align-items: flex-start; gap: 6px; padding-block: 10px 0; }
+    .brand { font-size: 1.25rem; }
+    .topbar .tabs { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+    .topbar .tab { justify-content: center; font-size: .82rem; padding: 10px 2px; }
+  }
+
+  /* titoli e testi */
+  h1, h2, h3, .sheet-title, .pick-title, .card h2, .sec-title { font-family: var(--font-display); font-weight: 300; letter-spacing: -.02em; }
+  h2 em, h3 em, .hero-vote h2 em { font-style: italic; font-weight: 300; }
+  .eyebrow, .sec-num { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--fg); font-weight: 500; }
+  .sec-num { display: block; padding-bottom: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--line); color: var(--brass); }
+  .note, .lede { color: var(--muted); }
+  .card { border-top: 0; padding: 72px 0 0; }
+  .card h2 { font-size: clamp(2rem, 4.2vw, 3.4rem); line-height: 1.04; }
+  .empty { font-family: var(--font-body); font-style: normal; font-size: .95rem; }
+
+  /* pulsanti a pillola */
+  .btn { font-size: .92rem; font-weight: 500; letter-spacing: 0; text-transform: none; background: var(--fg); color: var(--bg); border-radius: 999px; padding: 12px 24px; }
+  .btn.big { font-size: 1rem; padding: 15px 30px; }
+  .ghost { font-size: .9rem; font-weight: 400; letter-spacing: 0; text-transform: none; text-decoration: none; color: var(--fg); border: 1px solid currentColor; border-radius: 999px; padding: 9px 18px; }
+  .ghost:hover { background: var(--fg); color: var(--bg); }
+  .ghost.danger { color: var(--bad); }
+  .ghost.danger:hover { background: var(--bad); color: #fff; }
+  .star { font-size: .85rem; letter-spacing: 0; text-transform: none; border-radius: 999px; border-color: var(--line); }
+  .star .ic { color: var(--brass); }
+  .star[aria-pressed="true"] { border-color: var(--brass); color: var(--brass); }
+  .star[aria-pressed="true"]:hover { background: var(--brass); color: #fff; }
+  .chip { border-radius: 999px; letter-spacing: .04em; font-size: .68rem; }
+  .chip.todo { background: var(--brass); border-color: var(--brass); color: #fff; }
+
+  /* foto protagonista con velo scuro */
+  .hero-vote { position: relative; margin-inline: calc(50% - 50vw); padding: clamp(90px, 16vh, 170px) max(20px, env(safe-area-inset-right, 0px)) clamp(70px, 12vh, 130px) max(20px, env(safe-area-inset-left, 0px)); color: #fff; overflow: hidden; isolation: isolate; gap: 18px; }
+  .hero-vote::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--charcoal) var(--hero-img, none) center 62% / cover no-repeat; transform: scale(1.04); }
+  .hero-vote::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(10 11 12 / .55), rgb(10 11 12 / .62) 55%, rgb(10 11 12 / .78)); }
+  .hero-vote .eyebrow { color: rgb(255 255 255 / .86); }
+  .hero-vote h2 { color: #fff; font-size: clamp(2.6rem, 7.2vw, 5.6rem); line-height: 1.02; max-width: 14ch; }
+  .hero-vote p { color: rgb(255 255 255 / .86); font-size: 1.05rem; max-width: 46ch; }
+  .hero-vote .btn { background: #fff; color: #111; }
+  .hero-vote .btn:hover { box-shadow: 0 10px 28px -10px rgb(0 0 0 / .6); }
+  .hero-vote .ghost { color: #fff; border-color: rgb(255 255 255 / .6); }
+  .hero-vote .ghost:hover { background: #fff; color: #111; }
+  .hv-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 12px; margin-top: 10px; }
+  .hv-actions .btn.big { flex: 0 0 auto; }
+  .hv-progress .bar { background: rgb(255 255 255 / .25); height: 3px; }
+  .hv-progress .bar i { background: #fff; }
+  .hv-progress span { color: rgb(255 255 255 / .8); letter-spacing: .1em; }
+  @media (prefers-reduced-motion: no-preference) { .hero-vote::before { animation: kb 18s ease-out both; } }
+  @keyframes kb { from { transform: scale(1.12); } to { transform: scale(1.04); } }
+
+  /* podio */
+  .salon-head { text-align: left; justify-items: start; }
+  .salon-head .sec-num { width: 100%; }
+  .seg { margin-top: 18px; border-color: var(--line); }
+  .seg button { font-size: .85rem; }
+  .podium { border-bottom: 1px solid var(--fg); max-width: 900px; margin-top: 30px; }
+  .pod-step { border-top: 1px solid var(--fg); }
+  .p1 .pod-step { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .pod-num { font-family: var(--font-display); font-style: normal; font-weight: 300; color: var(--fg); font-size: 3rem; }
+  .p1 .pod-num { font-size: 4.2rem; }
+  .pod-name { font-family: var(--font-body); font-size: .9rem; }
+  .pod-score { letter-spacing: .06em; }
+
+  /* classifica */
+  .grid-head { margin-top: 80px; align-items: flex-end; }
+  .grid-head > div { flex: 1 1 auto; }
+  .grid-head .sec-title { font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+  .rank-list { border-top: 1px solid var(--fg); }
+  .rk { border-radius: 0; padding: 16px 4px; }
+  .rk-n { font-family: var(--font-display); font-style: normal; font-weight: 300; font-size: 1.6rem; color: var(--muted); }
+  .rk-t { font-family: var(--font-body); font-weight: 500; font-size: 1.02rem; }
+  .rk-tot b { font-family: var(--font-display); font-weight: 300; font-size: 1.9rem; }
+  .rk-tot .track i, .ov-grid .track i, .hv-progress .bar i { background: var(--brass); }
+  .hero-vote .hv-progress .bar i { background: #fff; }
+  .how { text-align: left; margin-inline: 0; }
+  #voters { text-align: left; }
+
+  /* oggi */
+  .pick { gap: 40px; padding-top: 64px; }
+  .pick .fp.photo, .pick .photo { border-radius: var(--r); box-shadow: none; }
+  .pick-title { font-size: clamp(1.8rem, 3.4vw, 2.8rem); }
+  .price { font-family: var(--font-display); font-weight: 300; }
+  .kpis { margin-top: 56px; border-top: 0; border-bottom: 0; gap: 0; }
+  .kpi { text-align: left; padding: 6px 20px 6px 18px; border-left: 1px solid var(--fg); }
+  .kpi:first-child { border-left: 1px solid var(--fg); }
+  .kpi .n { font-family: var(--font-display); font-weight: 300; font-size: clamp(2.4rem, 4.4vw, 3.6rem); }
+  .kpi .l { text-transform: uppercase; letter-spacing: .06em; font-weight: 600; font-size: .68rem; color: var(--fg); }
+  .sc .photo, .sc .fp { border-radius: var(--r); }
+  .sc-top { border-bottom: 1px solid var(--line); }
+  .sc h3 { font-family: var(--font-body); font-weight: 500; }
+  .sc .score { font-family: var(--font-display); font-weight: 300; color: var(--brass); }
+  .gal, .gal-track { border-radius: var(--r); }
+  th { color: var(--fg); border-bottom: 1px solid var(--fg); letter-spacing: .06em; }
+  #view-annunci { padding-top: 64px; }
+
+  /* fogli */
+  dialog.sheet { border-radius: 18px; }
+  .sheet-title { font-size: 1.9rem; }
+  .det-sec h3, .rate-lab { color: var(--fg); letter-spacing: .08em; }
+  .det-total b, .mini-podium b { font-family: var(--font-display); font-weight: 300; }
+  .mini-podium .mp-n { font-family: var(--font-display); font-style: normal; color: var(--muted); }
+  .mini-podium .mp-t { font-family: var(--font-body); }
+  .done-mark { background: var(--brass); }
+  .deck-nav .btn { border-radius: 999px; }
+  .name-step input { font-family: var(--font-display); font-weight: 300; font-size: 2rem; }
+
+  /* piè di pagina antracite */
+  .site-foot { display: block; margin-inline: calc(50% - 50vw); margin-top: 110px; border-top: 0; background: var(--charcoal); color: var(--on-dark); padding: 56px 0 calc(48px + env(safe-area-inset-bottom, 0px)); }
+  .foot-in { max-width: 1280px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 32px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  .foot-in p { margin: 10px 0 0; color: rgb(244 244 244 / .72); font-size: .9rem; max-width: 46ch; text-transform: none; letter-spacing: 0; }
+  .foot-h { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: rgb(244 244 244 / .9); }
+  .site-foot a { color: rgb(244 244 244 / .85); }
+  .site-foot #stamp { font-size: .9rem; letter-spacing: 0; text-transform: none; color: rgb(244 244 244 / .78); }
+  @media (max-width: 640px) { .foot-in { grid-template-columns: minmax(0, 1fr); } .card { padding-top: 56px; } }
+
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header>
-    <span class="mast-eyebrow">Registro privato · MGB &amp; MGA · Chrome bumper</span>
-    <h1>Caccia alla <em>MGB</em></h1>
-    <p class="lede">Le roadster e le GT con paraurti cromati in vendita in Europa, fino a 25.000 €. Ogni mattina raccogliamo gli annunci, leggiamo le descrizioni migliori e scegliamo la vettura del giorno.</p>
-    <p id="stamp"></p>
-  </header>
-
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="./" aria-label="Caccia alla MGB, home">Caccia alla <b>MGB</b></a>
   <nav class="tabs" role="tablist" aria-label="Sezioni">
     <button class="tab" role="tab" id="tab-preferiti" data-view="preferiti" aria-selected="true"><span class="tab-name">Preferiti<span class="count" id="fav-count">0</span></span><small>Vota la tua MGB tra le preferite selezionate da Carlo</small></button>
     <button class="tab" role="tab" id="tab-oggi" data-view="oggi" aria-selected="false"><span class="tab-name">Oggi</span><small>Gli annunci trovati oggi e la vettura del giorno</small></button>
     <button class="tab" role="tab" id="tab-annunci" data-view="annunci" aria-selected="false"><span class="tab-name">Tutti gli annunci</span><small>L’elenco completo, da cercare e ordinare</small></button>
   </nav>
+  </div>
+</div>
+
+<div class="wrap">
 
   <!-- OGGI -->
   <section id="view-oggi" class="view" style="display:grid;gap:20px">
@@ -475,7 +622,7 @@
   <!-- PREFERITI -->
   <section id="view-preferiti" class="view" style="display:none;gap:44px">
     <section class="hero-vote" id="hero-vote" aria-live="polite">
-      <span class="eyebrow">Concorso d'eleganza privato</span>
+      <span class="eyebrow">Concorso d’eleganza tra amici · MGB &amp; MGA chrome bumper</span>
       <h2 id="hv-title">Scegli la tua MGB</h2>
       <p id="hv-sub">Dai un voto da 1 a 5 a esterni, interni e cerchi di ogni auto. Il prezzo lo valutiamo noi. La classifica si aggiorna mentre voti.</p>
       <div class="hv-progress" id="hv-progress"><div class="bar"><i id="hv-bar"></i></div><span id="hv-count"></span></div>
@@ -490,13 +637,14 @@
 
     <section class="card" id="classifica">
       <div class="salon-head">
-        <h2>Il podio</h2>
+        <span class="sec-num">01 &nbsp;Il podio</span>
+        <h2>Le tre più <em>amate</em></h2>
         <div class="seg" id="pod-filter" role="group" aria-label="Di chi è il podio"></div>
       </div>
       <div class="podium" id="podium"><p class="empty">Il podio compare con i primi voti.</p></div>
       <div class="pending" id="pending" hidden><h3>Proposte in attesa</h3><ul id="pending-list"></ul></div>
       <div class="grid-head">
-        <h3 class="sec-title">La classifica completa</h3>
+        <div><span class="sec-num">02 &nbsp;Classifica</span><h3 class="sec-title">Tutte le auto in gara</h3></div>
         <button class="ghost" id="add-open" type="button" hidden>+ Aggiungi un’auto</button>
       </div>
       <ol class="rank-list" id="ranklist"></ol>
@@ -505,8 +653,11 @@
     </section>
   </section>
   <footer class="site-foot">
-    <span>Caccia alla MGB · un concorso tra amici</span>
-    <a href="privacy.html">Privacy</a>
+    <div class="foot-in">
+      <div><span class="brand">Caccia alla <b>MGB</b></span><p>Le MGB e MGA con paraurti cromati in vendita in Europa, fino a 25.000 €. Ogni mattina raccogliamo gli annunci, leggiamo i migliori e li mettiamo in gara.</p></div>
+      <div><span class="foot-h">Aggiornamento</span><p id="stamp"></p></div>
+      <div><span class="foot-h">Info</span><p><a href="privacy.html">Privacy</a></p></div>
+    </div>
   </footer>
 </div>
 
@@ -1185,7 +1336,7 @@
       node.append(el('div', 'done-mark', '★'), el('h2', 'sheet-title', 'Bravo ' + (myName() || '') + ', hai votato tutte le auto'), el('p', 'note', 'Ecco il tuo podio personale. Puoi cambiare i voti quando vuoi.'));
       const top = rankedFavs(S.uid).filter(([x, f]) => scoreOf(x, f, S.uid).totale != null).slice(0, 3);
       const ol = el('ol', 'mini-podium');
-      top.forEach(([x, f], j) => { const li = el('li'); li.append(el('span', 'mp-n', ['I', 'II', 'III'][j]), carImg(x, f, '') || el('span'), el('span', 'mp-t', f.titolo || ''), el('b', null, fmt1(scoreOf(x, f, S.uid).totale))); ol.append(li); });
+      top.forEach(([x, f], j) => { const li = el('li'); li.append(el('span', 'mp-n', String(j + 1)), carImg(x, f, '') || el('span'), el('span', 'mp-t', f.titolo || ''), el('b', null, fmt1(scoreOf(x, f, S.uid).totale))); ol.append(li); });
       node.append(ol);
       const acts = el('div', 'done-acts');
       const mine = el('button', 'btn', 'Vedi il mio podio'); mine.type = 'button';
@@ -1332,6 +1483,9 @@
   // ---------- intestazione del concorso
   function drawHero() {
     const n = S.favs.size, v = votedCount(), nome = myName();
+    const top = rankedFavs('')[0];
+    const heroSrc = (top && (((S.gal || {})[top[0]] || [])[0] || favImg(top[0], top[1]))) || 'assets/foto/u1ygiogo.webp';
+    if (okImg(heroSrc) && $('hero-vote').dataset.img !== heroSrc) { $('hero-vote').dataset.img = heroSrc; $('hero-vote').style.setProperty('--hero-img', 'url("' + heroSrc.replace(/["\\()]/g, '') + '")'); }
     const t = $('hv-title'), s = $('hv-sub'), go = $('hv-go');
     $('hv-progress').hidden = !S.canVote || !n;
     $('hv-bar').style.width = n ? (v / n * 100) + '%' : '0';
@@ -1393,7 +1547,7 @@
       car.append(carImg(id, f, '') || el('div', 'nophoto', 'MG'), trophy(MEDAL[i]));
       const step = el('div', 'pod-step');
       const score = el('div', 'pod-score', fmt1(sc.totale) + ' / 5'); score.append(el('span', 'pod-price', ' · ' + eur(priceOf(f))));
-      step.append(el('span', 'pod-num', ['I', 'II', 'III'][i]), el('div', 'pod-name', f.titolo || 'Annuncio salvato'), score);
+      step.append(el('span', 'pod-num', String(i + 1)), el('div', 'pod-name', f.titolo || 'Annuncio salvato'), score);
       col.append(car, step);
       col.addEventListener('click', () => openDetail(id));
       return col;
